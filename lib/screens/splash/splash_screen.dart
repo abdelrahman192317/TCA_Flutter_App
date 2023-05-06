@@ -22,8 +22,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
-        Provider.of<MyPro>(context, listen: false).getSavedSign());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MyPro>(context, listen: false).getSavedSign();
+      Provider.of<MyPro>(context, listen: false).initializeNotifications();
+      });
     super.initState();
   }
 
@@ -34,10 +36,10 @@ class _SplashScreenState extends State<SplashScreen> {
     return Consumer<MyPro>(
       builder: (ctx, val, _) {
         return AnimatedSplashScreen(
-          duration: 800,
-          splashIconSize: 250,
+          duration: 1000,
+          splashIconSize: 200,
           splash: Lottie.asset(
-              'assets/lottie/splash.json',
+              'assets/lottie/heart_rate.json',
               width: size.width * 0.5,
               height: size.height * 0.5,
               fit: BoxFit.contain

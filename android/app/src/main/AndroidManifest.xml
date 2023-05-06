@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.app2m">
-   <application
+    <application
         android:label="ECS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -33,5 +33,14 @@
         <!-- <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR KEY HERE"/> -->
+        <service
+            android:name="com.example.flutterLocalNotification.ForegroundService"
+            android:exported="false"
+            android:stopWithTask="false"/>
     </application>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 </manifest>

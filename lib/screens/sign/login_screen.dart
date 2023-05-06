@@ -91,12 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               labelText: 'Password',
                               prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
-                                  onPressed: () => val.toggleSignObscureText(),
-                                  icon: Icon(val.signObscureText? CupertinoIcons.eye_slash_fill : CupertinoIcons.eye_solid)
+                                  onPressed: () => val.toggleObscureText(),
+                                  icon: Icon(val.obscureText? CupertinoIcons.eye_solid : CupertinoIcons.eye_slash_fill)
                               ),
                           ),
                           keyboardType: TextInputType.visiblePassword,
-                          obscureText: val.signObscureText,
+                          obscureText: val.obscureText,
                           validator: (value) => value == null || value.isEmpty ?
                           'Please enter the password' : value.length<6 ?
                           'the minimum length is 6 character': null,
@@ -118,8 +118,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         SizedBox(height: size.height * 0.02,),
 
-                        if (val.signErrorMessage != null)
-                          Text(val.signErrorMessage!,
+                        if (val.errorMessage != null)
+                          Text(val.errorMessage!,
                               style: const TextStyle(color: Colors.red)
                           ),
 
@@ -130,17 +130,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: size.width,
                           height: size.height * 0.08,
                           child: ElevatedButton(
-                            onPressed: val.signIsLoading ? null : (){
+                            onPressed: val.isLoading ? null : (){
                               if (_formKey.currentState!.validate()) {
                                 val.sign(email: _emailController.text, password: _passwordController.text)
                                     .then((value) {
-                                  val.nullSignErrorMessage();
+                                  val.reset();
                                   Navigator.pushReplacement(context,
                                       MaterialPageRoute(builder: (context) => const HomeScreen()));
-                                }).catchError((e){val.setSignErrorMessage(e.toString());});
+                                }).catchError((e){val.setErrorMessage(e.toString());});
                               }
                             },
-                            child: val.signIsLoading ? const CircularProgressIndicator() : const Text('Login'),
+                            child: val.isLoading ? const CircularProgressIndicator() : const Text('Login'),
                           ),
                         ),
 

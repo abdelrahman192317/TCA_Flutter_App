@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart';
-//import 'package:intl/intl.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,43 +20,29 @@ class MyPro extends ChangeNotifier {
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
-  nullErrorMessage() {_errorMessage = null; notifyListeners();}
-  setErrorMessage(String e) {_errorMessage = e; notifyListeners();}
+  void nullErrorMessage() {_errorMessage = null; notifyListeners();}
+  void setErrorMessage(String e) {_errorMessage = e; notifyListeners();}
 
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  void resetIsLoading() {_isLoading = false; notifyListeners();}
 
-  ///////////////////////////////
-  //sign
-  bool _signIsLoading = false;
-  bool get signIsLoading => _signIsLoading;
-
-  bool _signObscureText = true;
-  bool get signObscureText => _signObscureText;
-  toggleSignObscureText () {_signObscureText = !_signObscureText; notifyListeners();}
-
-  String? _signErrorMessage;
-  String? get signErrorMessage => _signErrorMessage;
-  nullSignErrorMessage() {_signErrorMessage = null; notifyListeners();}
-  setSignErrorMessage(String e) {_signErrorMessage = e; notifyListeners();}
-
-  ///////////////////////////////
-  //register
-  bool _registerIsLoading = false;
-  bool get registerIsLoading => _registerIsLoading;
-
-  bool _registerObscureText = true;
-  bool get registerObscureText => _registerObscureText;
-  toggleRegisterObscureText () {_registerObscureText = !_registerObscureText; notifyListeners();}
+  bool _obscureText = true;
+  bool get obscureText => _obscureText;
+  void toggleObscureText () {_obscureText = !_obscureText; notifyListeners();}
+  void resetObscureText() {_obscureText = true; notifyListeners();}
 
   bool _registerCObscureText = true;
   bool get registerCObscureText => _registerCObscureText;
-  toggleRegisterCObscureText () {_registerCObscureText = !_registerCObscureText; notifyListeners();}
+  void toggleRegisterCObscureText () {_registerCObscureText = !_registerCObscureText; notifyListeners();}
+  void resetRegisterCObscureText() {_registerCObscureText = true; notifyListeners();}
 
-  String? _registerErrorMessage;
-  String? get registerErrorMessage => _registerErrorMessage;
-  nullRegisterErrorMessage() {_registerErrorMessage = null; notifyListeners();}
-  setRegisterErrorMessage(String e) {_registerErrorMessage = e; notifyListeners();}
-
-
+  void reset() {
+    _errorMessage = null;
+    _isLoading = false;
+    _obscureText = true;
+    _registerCObscureText = true;
+  }
 
   // firebase
   FirebaseManager firebaseManager = FirebaseManager();
@@ -77,35 +66,33 @@ class MyPro extends ChangeNotifier {
 
   Future<void> sign({required String email, required String password}) async {
 
-    _signIsLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try{
       await firebaseManager.signInWithEmailAndPassword(email, password);
     } catch(e){
-      _signIsLoading = false;
-      notifyListeners();
+      resetIsLoading();
       rethrow;
     }
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString('sign', 'true');
 
-    _signIsLoading = false;
+    _isLoading = false;
     notifyListeners();
   }
 
   Future<void> register({required User user}) async {
 
-    _registerIsLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try{
       String authId = await firebaseManager.createUserWithEmailAndPassword(user.email, user.password);
       user.authId = authId;
     } catch(e){
-      _registerIsLoading = false;
-      notifyListeners();
+      resetIsLoading();
       rethrow;
     }
 
@@ -113,8 +100,7 @@ class MyPro extends ChangeNotifier {
       String uid = await firebaseManager.createDocument("Users", User.toMap(user));
       user.userId = uid;
     } catch(e){
-      _registerIsLoading = false;
-      notifyListeners();
+      resetIsLoading();
       rethrow;
     }
     _user = user;
@@ -123,7 +109,7 @@ class MyPro extends ChangeNotifier {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString('sign', 'true');
 
-    _registerIsLoading = false;
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -166,15 +152,14 @@ class MyPro extends ChangeNotifier {
   }
 
   Future<void> deleteUser() async{
+
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString('user', '');
-
     _user = User();
-    _isSign = false;
+    logout();
 
     notifyListeners();
   }
-
 
 
   ////////////////////////////////////////////
@@ -188,22 +173,47 @@ class MyPro extends ChangeNotifier {
 
   List<dynamic> get dsList {
     _dsList = [];
-    if(_mdsList.isNotEmpty){_mdsList.forEach((mds) {mds.datesList!.forEach((md) {if(!md.archive){ mds.dateTime = md.dateTime; _dsList.add(mds);} }); }); }
-    if(_ddsList.isNotEmpty){_ddsList.forEach((dds) { dds.datesList!.forEach((dd) {if(!dd.archive){dds.dateId = dd.dateId; dds.dateTime = dd.dateTime; _dsList.add(dds);}});});}
+    if(_mdsList.isNotEmpty){
+      for (var mds in _mdsList) {
+        for (var md in mds.datesList!) {
+          print('mds $md  ${md.done}');
+          if(!md.archived) _dsList.add(MDateCard(mds: mds, dateTime: md.dateTime));
+        }
+      }
+    }
+    if(_ddsList.isNotEmpty){
+      for (var dds in _ddsList) {
+        for (var dd in dds.datesList!) {
+          print('dds $dd  ${dd.done}');
+          if(!dd.archived) _dsList.add(DDateCard(dds: dds, dateTime: dd.dateTime));
+        }
+      }
+    }
     if(_dsList.isNotEmpty)_dsList.sort((a,b) => a.dateTime!.compareTo(b.dateTime!));
     return _dsList;
   }
+
   List<dynamic> get aDsList {
     _aDsList = [];
-    if(_mdsList.isNotEmpty){_mdsList.forEach((mds) { mds.datesList!.forEach((md) {if(md.archive){ mds.dateTime = md.dateTime; _aDsList.add(mds);}});});}
-    if(_ddsList.isNotEmpty){_ddsList.forEach((dds) { dds.datesList!.forEach((dd) {if(dd.archive){dds.dateId = dd.dateId; dds.dateTime = dd.dateTime; _aDsList.add(dds);}});});}
+    if(_mdsList.isNotEmpty){
+      for (var mds in _mdsList) {
+        if(mds.archived != 0) _aDsList.add(MDateCard(mds: mds, dateTime: mds.datesList![mds.archived - 1].dateTime));
+      }
+    }
+    if(_ddsList.isNotEmpty){
+      for (var dds in _ddsList) {
+        if(dds.archived != 0) _aDsList.add(DDateCard(dds: dds, dateTime: dds.datesList![dds.archived - 1].dateTime));
+      }
+    }
     if(_aDsList.isNotEmpty)_aDsList.sort((a,b) => a.dateTime!.compareTo(b.dateTime!));
     return _aDsList;
   }
 
-
   List<String> get dNList {
-    _ddsList.forEach((e) => _dNList.add(e.doctorName));
+    _dNList = [];
+    for (var dds in _ddsList) {
+      _dNList.add(dds.doctorName);
+    }
     return _dNList;
   }
 
@@ -228,8 +238,15 @@ class MyPro extends ChangeNotifier {
       _ddsList = ddsList;
     }
 
+    print('ddslist $_ddsList');
+    print('mdslist $_mdsList');
+
     dsList;
     aDsList;
+
+    print('dslist $_dsList');
+    print('adslist $_aDsList');
+
     notifyListeners();
   }
 
@@ -246,41 +263,49 @@ class MyPro extends ChangeNotifier {
 
   ///////////////////////////////
   //medication
-  addMDs({required MedicationDates mds}) async{
+  MedicationDates getMDate(String id) =>
+    _mdsList.firstWhere((element) => element.medicineId == id);
+
+  addMDs({required MedicationDates mds}){
     _mdsList.add(mds);
 
     dsList;
-
-    await setData();
-    notifyListeners();
-  }
-
-  doneMDate(MedicationDates mds) {
-    (_mdsList.firstWhere((element) => element.dateTime! == mds.dateTime!)).doneDate();
-
-    _index == 0? dsList : aDsList;
+    aDsList;
 
     setData();
     notifyListeners();
   }
 
-  archiveMDate(MedicationDates mds) {
-    (_mdsList.firstWhere((element) => element.dateTime! == mds.dateTime!)).archiveDate();
+  doneMDate(String id) {
+    _mdsList.firstWhere((element) => element.medicineId == id).doneDate();
 
-    _index == 0? dsList : aDsList;
+    dsList;
+    aDsList;
+
+    setData();
+    notifyListeners();
+  }
+
+  archiveMDate(String id, DateTime dateTime) {
+    _mdsList.firstWhere((element) => element.medicineId == id).archiveDate(dateTime);
+
+    dsList;
+    aDsList;
 
     setData();
     notifyListeners();
   }
 
-  deleteFromMDsList(MedicationDates mds) {
-    (_mdsList.firstWhere((element) => element.dateTime! == mds.dateTime!)).delete();
+  deleteFromMDsList(String id, DateTime dateTime) {
+    _mdsList.firstWhere((element) => element.medicineId == id).delete(dateTime);
 
-    _index == 0? dsList : aDsList;
+    dsList;
+    aDsList;
 
     setData();
     notifyListeners();
   }
+
 
 
   ///////////////////////////////
@@ -293,37 +318,54 @@ class MyPro extends ChangeNotifier {
   String get dN => _dN;
   setDN(String name) {_dN = name; notifyListeners();}
 
-  addDDs({required DoctorDates dds}) async{
+  DoctorDates getDDate(String id) =>
+      _ddsList.firstWhere((element) => element.doctorId == id);
+
+  addDDs({required DoctorDates dds}){
     _ddsList.add(dds);
 
     dsList;
-
-    await setData();
-    notifyListeners();
-  }
-
-  doneDDate(DoctorDates dds) {
-    (_ddsList.firstWhere((element) => element.doctorId == dds.doctorId)).doneDate();
-
-    _index == 0? dsList : aDsList;
+    aDsList;
 
     setData();
     notifyListeners();
   }
 
-  archiveDDate(DoctorDates dds) {
-    (_ddsList.firstWhere((element) => element.dateTime! == dds.dateTime!)).archiveDate(dds.dateId);
+  addDD(DateTime date){
+    _ddsList.firstWhere((element) => element.doctorName == _dN).addDate(date);
 
-    _index == 0? dsList : aDsList;
+    dsList;
+    aDsList;
 
     setData();
     notifyListeners();
   }
 
-  deleteFromDDsList(DoctorDates dds) {
-    (_ddsList.firstWhere((element) => element.dateTime! == dds.dateTime!)).delete(dds.dateId);
+  doneDDate(String id) {
+    _ddsList.firstWhere((element) => element.doctorId == id).doneDate();
 
-    _index == 0? dsList : aDsList;
+    dsList;
+    aDsList;
+
+    setData();
+    notifyListeners();
+  }
+
+  archiveDDate(String id, DateTime dateTime) {
+    _ddsList.firstWhere((element) => element.doctorId == id).archiveDate(dateTime);
+
+    dsList;
+    aDsList;
+
+    setData();
+    notifyListeners();
+  }
+
+  deleteFromDDsList(String id, DateTime dateTime) {
+    _ddsList.firstWhere((element) => element.doctorId == id).delete(dateTime);
+
+    dsList;
+    aDsList;
 
     setData();
     notifyListeners();
@@ -416,4 +458,101 @@ class MyPro extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  /////////////////////////////
+  //dismissible
+  /////////////////////////////
+  bool _start = false;
+  bool get start => _start;
+  setStart(bool s) {_start = s; notifyListeners();}
+
+
+
+  /////////////////////////////
+  //notification
+  /////////////////////////////
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+
+  // Initialize the plugin
+  Future<void> initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('launch_background');
+    const DarwinInitializationSettings initializationSettingsIOS =
+    DarwinInitializationSettings(
+      requestSoundPermission: false,
+      requestBadgePermission: false,
+      requestAlertPermission: false,
+    );
+    const InitializationSettings initializationSettings =
+    InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> setAlarm() async {
+
+    // Define the notification details
+    const androidDetails = AndroidNotificationDetails(
+      'alarm_channel1', // channel ID
+      'alarm', // channel name
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('alarm'),
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const notificationDetails =
+    NotificationDetails(android: androidDetails);
+
+    // Define the date and time when the alarm should trigger
+
+    // Initialize time zone data
+    tz.initializeTimeZones();
+
+    // Convert the scheduled date and time to the local time zone
+    final scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 1));
+
+    // Schedule the notification
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      0, // Notification ID
+      'alarm', // Notification title
+      'Time to wake up!', // Notification body
+      scheduledDate, // Scheduled date and time in the local time zone
+      notificationDetails,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime, // Allow delivery while device is idle
+    );
+  }
+
+  Future<void> scheduleNotification(DateTime dateTime, String title, String body) async {
+
+    // Initialize time zone data
+    tz.initializeTimeZones();
+
+    // Convert the scheduled date and time to the local time zone
+    final scheduledDate = tz.TZDateTime.from(dateTime, tz.local);
+
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+    AndroidNotificationDetails(
+        'your_channel_id', 'your_channel_name',
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker');
+
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        0, // Notification ID
+        title, // Notification title
+        body, // Notification body
+        scheduledDate, // Scheduled date and time
+        platformChannelSpecifics,
+        //androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime);
+  }
 }

@@ -18,15 +18,13 @@ class _AddDoctorState extends State<AddDoctor> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final _nameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
   final _typeController = TextEditingController();
   final _locationController = TextEditingController();
-  final _dateController = DateTime.now();
+  final _dateTime = DateTime.now();
 
   @override
   void dispose() {
-    _nameController.dispose();
     _phoneNumberController.dispose();
     _typeController.dispose();
     _locationController.dispose();
@@ -40,7 +38,7 @@ class _AddDoctorState extends State<AddDoctor> {
     return Consumer<MyPro>(
         builder: (ctx, val, _) => Scaffold(
           body: SingleChildScrollView(
-            child: Container(
+            child: Padding(
               padding: EdgeInsets.all(size.height * 0.02),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,9 +47,10 @@ class _AddDoctorState extends State<AddDoctor> {
 
                   IconButton(
                     onPressed: (){
-                      Navigator.pop(context);
                       val.nullErrorMessage();
                       val.falsePickers();
+                      val.setIsNewDoc(true);
+                      Navigator.pop(context);
                     },
                     icon: const Icon(Icons.arrow_back_ios),
                   ),
@@ -65,26 +64,26 @@ class _AddDoctorState extends State<AddDoctor> {
                         children: [
 
                           SizedBox(height: size.height * 0.04),
-
                           const Text('Adding Doctor Date', style: TextStyle(fontSize: 30),),
 
                           SizedBox(height: size.height * 0.02),
-
                           const Text('please enter the required data', style: TextStyle(fontSize: 15, color: Colors.grey),),
 
                           SizedBox(height: size.height * 0.04),
-
                           Autocomplete<String>(
                             optionsBuilder: (TextEditingValue textEditingValue) {
                               if (textEditingValue.text == '') {
                                 return const Iterable<String>.empty();
                               }
-                              return val.dNList.where((String option) => true);
+                              return val.dNList.where((String dName) {
+                                return dName.contains(textEditingValue.text.toLowerCase());
+                              });
                             },
                             onSelected: (String selection) {
-                              val.setIsNewDoc(true);
+                              val.setIsNewDoc(false);
                               val.setDN(selection);
                             },
+                            optionsMaxHeight: size.height * 0.2,
                             fieldViewBuilder: (BuildContext context,
                                 TextEditingController tEC,
                                 FocusNode focusNode,
@@ -93,34 +92,40 @@ class _AddDoctorState extends State<AddDoctor> {
                                 controller: tEC,
                                 focusNode: focusNode,
                                 onChanged: (String value) {
-                                  val.setDN(value);
-                                  //onFieldSubmitted();
+                                  if(val.dN == value) {
+                                    val.setIsNewDoc(false);
+                                  } else{
+                                    val.setIsNewDoc(true);
+                                    val.setDN(value);
+                                  }
                                 },
-                                onFieldSubmitted: val.setDN(tEC.text),
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(Radius.circular(15))
                                   ),
-                                  labelText: 'Name',
+                                  labelText: 'Doctor Name',
                                   prefixIcon: Icon(Icons.person),
                                 ),
                                 keyboardType: TextInputType.name,
-                                validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
+                                validator: (value) => value == null || value.isEmpty ? 'Please enter doctor name' : null,
                               );
                             },
                             optionsViewBuilder: (BuildContext context,
                                 AutocompleteOnSelected<String> onSelected,
                                 Iterable<String> options) {
                               return Align(
-                                alignment: Alignment.topCenter,
+                                alignment: Alignment.topLeft,
                                 child: Card(
                                   child: SizedBox(
+                                    width: size.width * 0.89,
                                     height: size.height * 0.3,
                                     child: ListView(
                                       children: options.map((String option) => GestureDetector(
-                                        onTap: () => onSelected(option),
-                                        child: Text(option)
-                                      )).toList(),
+                                          onTap: () => onSelected(option),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(size.height * 0.01),
+                                            child: Text(option),
+                                          ))).toList(),
                                     ),
                                   ),
                                 ),
@@ -128,24 +133,8 @@ class _AddDoctorState extends State<AddDoctor> {
                             },
                           ),
 
-                          SizedBox(height: size.height * 0.04),
-
-                          //name
-                          TextFormField(
-                            controller: _nameController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(15))
-                              ),
-                              labelText: 'Name',
-                              prefixIcon: Icon(Icons.person),
-                            ),
-                            keyboardType: TextInputType.name,
-                            validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
-                          ),
-
+                          if(val.isNewDoc) ...[
                           SizedBox(height: size.height * 0.02,),
-
                           //phone number
                           TextFormField(
                             controller: _phoneNumberController,
@@ -161,7 +150,6 @@ class _AddDoctorState extends State<AddDoctor> {
                           ),
 
                           SizedBox(height: size.height * 0.02,),
-
                           //type
                           TextFormField(
                             controller: _typeController,
@@ -177,7 +165,6 @@ class _AddDoctorState extends State<AddDoctor> {
                           ),
 
                           SizedBox(height: size.height * 0.02,),
-
                           //location
                           TextFormField(
                             controller: _locationController,
@@ -190,9 +177,9 @@ class _AddDoctorState extends State<AddDoctor> {
                             keyboardType: TextInputType.streetAddress,
                             validator: (value) => value == null || value.isEmpty ? 'Please enter location' : null,
                           ),
+                          ],
 
                           SizedBox(height: size.height * 0.02),
-
                           //date and time
                           Row(
                             children: [
@@ -234,12 +221,10 @@ class _AddDoctorState extends State<AddDoctor> {
                           ),
 
                           SizedBox(height: size.height * 0.06),
-
                           if (val.errorMessage != null)
                             Text(val.errorMessage!,style: const TextStyle(color: Colors.red)),
 
                           SizedBox(height: size.height * 0.02),
-
                           //adding or cancel
                           Row(
                             children: [
@@ -250,9 +235,10 @@ class _AddDoctorState extends State<AddDoctor> {
                                       height: size.height * 0.08,
                                       child: TextButton(
                                         onPressed: () {
-                                          Navigator.pop(context);
                                           val.nullErrorMessage();
                                           val.falsePickers();
+                                          val.setIsNewDoc(true);
+                                          Navigator.pop(context);
                                         },
                                         child: const Text('cancel'),
                                       )
@@ -268,16 +254,16 @@ class _AddDoctorState extends State<AddDoctor> {
                                       onPressed: (){
                                         if (_formKey.currentState!.validate()) {
                                           if(val.isTimePicked){
-                                            val.addDDs(dds: DoctorDates(
-                                                doctorName: _nameController.text,
+                                            val.isNewDoc? val.addDDs(dds: DoctorDates(
+                                                doctorName: val.dN,
                                                 phoneNumber: _phoneNumberController.text,
                                                 type: _typeController.text,
                                                 location: _locationController.text,
-                                                dateTime: _dateController
-                                            ));
-                                            Navigator.pop(context);
-                                            val.nullErrorMessage();
-                                            val.falsePickers();
+                                                dateTime: val.selectedDate
+                                            )) : val.addDD(val.selectedDate);
+                                              val.nullErrorMessage();
+                                              val.falsePickers();
+                                              Navigator.pop(context);
                                           }else{
                                             val.setErrorMessage('choose an image');
                                           }

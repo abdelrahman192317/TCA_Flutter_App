@@ -1,14 +1,16 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 class MDate {
   DateTime dateTime;
   bool done;
-  bool archive;
+  bool archived;
 
   MDate({
     required this.dateTime,
     this.done = false,
-    this.archive = false
+    this.archived = false
   });
 
   factory MDate.fromMap(Map<String, dynamic> map) {
@@ -17,15 +19,15 @@ class MDate {
         DateTime.now() : DateTime.parse(map['dateTime'] as String),
         done: map['done']  == null ? false :
         map['done'] == 'false' ? false : true,
-        archive: map['archive']  == null ? false :
-        map['archive'] == 'false' ? false : true,
+        archived: map['archived']  == null ? false :
+        map['archived'] == 'false' ? false : true,
     );
   }
 
   static Map<String, dynamic> toMap(MDate mDate) => {
     "dateTime": mDate.dateTime.toIso8601String(),
     "done": mDate.done,
-    "archive": mDate.archive,
+    "archived": mDate.archived,
   };
 
   static String encode(List<MDate> mdList) => json.encode(
@@ -36,8 +38,9 @@ class MDate {
       .map<MDate>((item) => MDate.fromMap(item)).toList();
 }
 
+
 class MedicationDates {
-  String dateId;
+  String medicineId;
   String medicineName;
   String desc;
   String type;
@@ -49,10 +52,11 @@ class MedicationDates {
   int repeatInDay;
   int daysNum;
   int done;
+  int archived;
   List<MDate>? datesList;
 
   MedicationDates({
-    this.dateId = "",
+    this.medicineId = "",
     this.medicineName = "",
     this.desc = '',
     this.type = '',
@@ -64,40 +68,47 @@ class MedicationDates {
     this.repeatInDay = 0,
     this.daysNum = 0,
     this.done = 0,
-    this.datesList
+    this.archived = 0,
+    this.datesList = const []
   }){
-    int i = daysNum * repeatInDay;
-    if(i!=0){
-      datesList = [];
-      while(i-- != 0) {
-        datesList!.add(MDate(dateTime: startDateTime!.add(Duration(hours: 24~/repeatInDay))));
+    if(datesList!.isEmpty){
+      medicineId = UniqueKey().toString();
+      int i = daysNum * repeatInDay;
+      if(i != 0){
+        datesList = [];
+        for(int j = 0; j < i; j++) {
+          endDateTime = startDateTime;
+          datesList!.add(MDate(dateTime: endDateTime!.add(Duration(hours: (24~/repeatInDay) * j))));
+        }
       }
+      else {
+        datesList = [MDate(dateTime: startDateTime)];
+      }
+      endDateTime = datesList![datesList!.length - 1].dateTime;
     }
-    else {
-      datesList = [MDate(dateTime: dateTime!)];
-    }
-    endDateTime = startDateTime.add(Duration(days: daysNum));
   }
 
-  archiveDate() {
-    datesList![done].archive = true;
-    done++;
-    dateTime = datesList![done].dateTime;
+  archiveDate(DateTime date) {
+    datesList!.firstWhere((element) => element.dateTime == date).archived = true;
+    ++archived;
   }
+
   doneDate() {
-    datesList![done].done = true;
-    datesList![done].archive = true;
-    done++;
-    dateTime = datesList![done].dateTime;
+    datesList![archived].done = true;
+    datesList![archived].archived = true;
+    ++done;
+    ++archived;
   }
 
-  delete() {
-    datesList!.removeAt(done);
+  delete(DateTime date) {
+    if(datesList!.firstWhere((element) => element.dateTime == date).done)--done;
+    if(datesList!.firstWhere((element) => element.dateTime == date).archived)--archived;
+    datesList!.removeWhere((element) => element.dateTime == date);
   }
 
   factory MedicationDates.fromMap(Map<String, dynamic> map) {
     return MedicationDates(
-      dateId: map['dateId'] ?? '',
+      medicineId: map['dateId'] ?? '',
       medicineName: map['medicineName'] ?? '',
       desc: map['desc'] ?? '',
       type: map['type'] ?? '',
@@ -112,12 +123,13 @@ class MedicationDates {
       repeatInDay: map['repeatInDay'] ?? 0,
       daysNum: map['daysNum'] ?? 0,
       done: map['done'] ?? 0,
+      archived: map['archived'] ?? 0,
       datesList: map['datesList'] == null ? [] : MDate.decode(map['datesList'])
     );
   }
 
   static Map<String, dynamic> toMap(MedicationDates medicationDates) => {
-    "dateId": medicationDates.dateId,
+    "dateId": medicationDates.medicineId,
     "medicineName": medicationDates.medicineName,
     "desc": medicationDates.desc,
     "type": medicationDates.type,
@@ -129,6 +141,7 @@ class MedicationDates {
     "repeatInDay": medicationDates.repeatInDay,
     "daysNum": medicationDates.daysNum,
     "done": medicationDates.done,
+    "archived": medicationDates.archived,
     "datesList" : MDate.encode(medicationDates.datesList!)
   };
 
@@ -138,4 +151,33 @@ class MedicationDates {
   static List<MedicationDates> decode(String mdsList) => ((json.decode(mdsList))
       .map((item) => item as Map<String, dynamic>).toList())
       .map<MedicationDates>((item) => MedicationDates.fromMap(item)).toList();
+}
+
+class MDateCard {
+  String medicineId = '';
+  String medicineName = '';
+  String desc = '';
+  String type = '';
+  String doctorName = '';
+  String imageUrl = '';
+  DateTime? dateTime;
+  int done = 0;
+  int notDone = 0;
+  int archived = 0;
+
+  MDateCard({
+    required MedicationDates mds,
+    this.dateTime,
+  }){
+    medicineId = mds.medicineId;
+    medicineName = mds.medicineName;
+    desc = mds.desc;
+    type = mds.type;
+    doctorName = mds.doctorName;
+    imageUrl = mds.imageUrl;
+    done = mds.done;
+    notDone = mds.datesList!.length - mds.done;
+    archived = mds.archived;
+  }
+
 }

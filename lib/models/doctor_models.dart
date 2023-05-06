@@ -1,35 +1,33 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 class DDate {
-  int dateId;
   DateTime dateTime;
   bool done;
-  bool archive;
+  bool archived;
 
   DDate({
-    required this.dateId,
     required this.dateTime,
     this.done = false,
-    this.archive = false
+    this.archived = false
   });
 
   factory DDate.fromMap(Map<String, dynamic> map) {
     return DDate(
-      dateId: map['dateId'] ?? 0,
       dateTime: map['dateTime'] == null ?
       DateTime.now() : DateTime.parse(map['dateTime'] as String),
       done: map['done']  == null ? false :
       map['done'] == 'false' ? false : true,
-      archive: map['archive']  == null ? false :
-      map['archive'] == 'false' ? false : true,
+      archived: map['archived']  == null ? false :
+      map['archived'] == 'false' ? false : true,
     );
   }
 
   static Map<String, dynamic> toMap(DDate dDate) => {
-    "dateId": dDate.dateId,
     "dateTime": dDate.dateTime.toIso8601String(),
     "done": dDate.done,
-    "archive": dDate.archive,
+    "archived": dDate.archived,
   };
 
   static String encode(List<DDate> ddList) => json.encode(
@@ -48,7 +46,7 @@ class DoctorDates {
   String location;
   DateTime? dateTime;
   int done;
-  int dateId;
+  int archived;
   List<DDate>? datesList;
 
   DoctorDates({
@@ -59,31 +57,36 @@ class DoctorDates {
     this.location = '',
     required this.dateTime,
     this.done = 0,
-    this.dateId = 0,
+    this.archived = 0,
     this.datesList
   }){
-    datesList = [DDate(dateId: ++dateId, dateTime: dateTime!)];
+    if(datesList == null){
+      doctorId = UniqueKey().toString();
+      datesList = [DDate(dateTime: dateTime!)];
+    }
   }
 
   doneDate() {
-    datesList![done].done = true;
-    datesList![done].archive = true;
-    done++;
-    dateTime = datesList![done].dateTime;
-  }
-  archiveDate(int id) {
-    datesList!.firstWhere((element) => element.dateId == id).archive = true;
-    done++;
-    dateTime = datesList![done].dateTime;
+    datesList![archived].done = true;
+    datesList![archived].archived = true;
+    ++done;
+    ++archived;
   }
 
-  delete(int id) {
-    datesList!.removeWhere((element) => element.dateId == id);
+  archiveDate(DateTime date) {
+    datesList!.firstWhere((element) => element.dateTime == date).archived = true;
+    ++archived;
+  }
+
+  delete(DateTime date) {
+    if(datesList!.firstWhere((element) => element.dateTime == date).done)--done;
+    if(datesList!.firstWhere((element) => element.dateTime == date).archived)--archived;
+    datesList!.removeWhere((element) => element.dateTime == date);
   }
 
   addDate(DateTime date) {
-    datesList!.add(DDate(dateId: ++dateId, dateTime: date));
-    datesList!.sort((a,b) => a.dateTime!.compareTo(b.dateTime!));
+    datesList!.add(DDate(dateTime: date));
+    datesList!.sort((a,b) => a.dateTime.compareTo(b.dateTime));
   }
 
 
@@ -97,7 +100,7 @@ class DoctorDates {
         DateTime.now() : DateTime.parse(map['dateTime'] as String),
         location: map['location'] ?? '',
         done: map['done'] ?? 0,
-        dateId: map['dateId'] ?? 0,
+        archived: map['archived'] ?? 0,
         datesList: map['datesList'] == null ? [] : DDate.decode(
             map['datesList'])
     );
@@ -112,7 +115,7 @@ class DoctorDates {
         "location": doctorDates.location,
         "dateTime": doctorDates.dateTime?.toIso8601String(),
         "done": doctorDates.done,
-        "dateId": doctorDates.dateId,
+        "archived": doctorDates.archived,
         "datesList": DDate.encode(doctorDates.datesList!)
       };
 
@@ -124,4 +127,26 @@ class DoctorDates {
   static List<DoctorDates> decode(String ddsList) => ((json.decode(ddsList))
           .map((item) => item as Map<String, dynamic>).toList())
           .map<DoctorDates>((item) => DoctorDates.fromMap(item)).toList();
+}
+
+class DDateCard {
+  String doctorId = '';
+  String doctorName = '';
+  String type = '';
+  String location = '';
+  DateTime? dateTime;
+  int done = 0;
+  int archived = 0;
+
+  DDateCard({
+    required DoctorDates dds,
+    required this.dateTime,
+  }) {
+    doctorId = dds.doctorId;
+    doctorName = dds.doctorName;
+    type = dds.type;
+    location = dds.location;
+    done = dds.done;
+    archived = dds.archived;
+  }
 }

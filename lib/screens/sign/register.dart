@@ -129,13 +129,12 @@ class _SignScreenState extends State<SignScreen> {
                                 labelText: 'Password',
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
-                                    onPressed: () => val.toggleRegisterObscureText(),
-                                    icon: Icon(val.registerObscureText?
-                                    CupertinoIcons.eye_slash_fill: CupertinoIcons.eye_solid)
+                                    onPressed: () => val.toggleObscureText(),
+                                    icon: Icon(val.obscureText? CupertinoIcons.eye_solid : CupertinoIcons.eye_slash_fill)
                                 )
                             ),
                             keyboardType: TextInputType.visiblePassword,
-                            obscureText: val.registerObscureText,
+                            obscureText: val.obscureText,
                             validator: (value) => value == null || value.isEmpty ?
                             'Please enter the password' : value.length<6 ?
                             'the minimum length is 6 character': null,
@@ -166,8 +165,8 @@ class _SignScreenState extends State<SignScreen> {
 
                           SizedBox(height: size.height * 0.02,),
 
-                          if (val.registerErrorMessage != null)
-                            Text(val.registerErrorMessage!,
+                          if (val.errorMessage != null)
+                            Text(val.errorMessage!,
                               style: const TextStyle(color: Colors.red)
                             ),
 
@@ -178,7 +177,7 @@ class _SignScreenState extends State<SignScreen> {
                             width: size.width,
                             height: size.height * 0.08,
                             child: ElevatedButton(
-                              onPressed: val.registerIsLoading ? null : (){
+                              onPressed: val.isLoading ? null : (){
                                 if (_formKey.currentState!.validate()) {
                                   if(_passwordController.text == _cPasswordController.text){
                                     val.register(user: User(
@@ -187,17 +186,17 @@ class _SignScreenState extends State<SignScreen> {
                                         email: _emailController.text,
                                         password: _passwordController.text
                                     )).then((value) {
-                                      val.nullRegisterErrorMessage();
+                                      val.reset();
                                       Navigator.pushReplacement(context,
                                           MaterialPageRoute(builder: (
                                               context) => const HomeScreen()));
-                                    }).catchError((e){val.setRegisterErrorMessage(e.toString());});
+                                    }).catchError((e){val.setErrorMessage(e.toString());});
                                   }else {
-                                    val.setRegisterErrorMessage('password not mach');
+                                    val.setErrorMessage('password not mach');
                                   }
                                 }
                               },
-                              child: val.registerIsLoading ? const CircularProgressIndicator() : const Text('Register'),
+                              child: val.isLoading ? const CircularProgressIndicator() : const Text('Register'),
                             ),
                           ),
 

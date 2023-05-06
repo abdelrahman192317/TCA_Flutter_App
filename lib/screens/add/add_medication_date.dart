@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:provider/provider.dart';
 
@@ -69,28 +70,33 @@ class _AddMedicationState extends State<AddMedication> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          SizedBox(height: size.height * 0.04),
+                          SizedBox(height: size.height * 0.05),
 
-                          const Text('Adding Medication Date', style: TextStyle(fontSize: 30),),
+                          Text('Adding Medication Date', style: Theme.of(context).textTheme.headlineSmall),
 
-                          SizedBox(height: size.height * 0.02),
+                          SizedBox(height: size.height * 0.01),
 
                           const Text('please enter the required data', style: TextStyle(fontSize: 15, color: Colors.grey),),
 
-                          SizedBox(height: size.height * 0.04),
+                          SizedBox(height: size.height * 0.05),
 
                           Center(
                             child: InkWell(
                               onTap: () => val.getImage(),
                               child: SizedBox(
-                                  width: size.width * 0.4,
+                                  width: size.height * 0.25,
                                   height: size.height * 0.25,
                                   child: Stack(
                                       children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(100),
-                                          child: val.isImagePicked ? Image.file(val.image,fit: BoxFit.contain,) :
-                                          Image.asset('assets/images/drugs.jpg',fit: BoxFit.contain,)
+                                        SizedBox(
+                                          width: size.height * 0.25,
+                                          height: size.height * 0.25,
+                                          child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(100),
+                                              child: val.isImagePicked ?
+                                              Image.file(val.image,fit: BoxFit.cover,) :
+                                              Image.asset('assets/images/drugs1.jpg',fit: BoxFit.cover,)
+                                          ),
                                         ),
                                         Align(
                                             alignment: AlignmentDirectional.bottomEnd,
@@ -163,6 +169,7 @@ class _AddMedicationState extends State<AddMedication> {
                               labelText: 'Doctor Name',
                               prefixIcon: Icon(Icons.person),
                             ),
+                            onFieldSubmitted: (val) => FocusScope.of(context).nextFocus(),
                             keyboardType: TextInputType.name,
                             validator: (value) => value == null || value.isEmpty ? 'Please enter doctor\'s name' : null,
                           ),
@@ -182,7 +189,7 @@ class _AddMedicationState extends State<AddMedication> {
                                       icon: const Icon(Icons.calendar_today),
                                       label: Text(
                                           val.isDatePicked
-                                              ? '${val.selectedDate.day}/${val.selectedDate.month}'
+                                              ? DateFormat('MM/dd').format(val.selectedDate)
                                               : 'start Date'
                                       ),
                                     ),

@@ -1,28 +1,16 @@
+import 'package:app2m/widgets/dialog_edit_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:provider/provider.dart';
 
 import '../../provider/my_provider.dart';
 
-import '../sign/log_screen.dart';
+import '../../widgets/profile_card_widget.dart';
 
-class Profile extends StatefulWidget {
-  const Profile({
-    Key? key,
-  }) : super(key: key);
+class Profile extends StatelessWidget {
+  const Profile({Key? key}) : super(key: key);
 
-  @override
-  ProfileState createState() => ProfileState();
-}
 
-class ProfileState extends State<Profile> {
-  @override
-  void initState() {
-    // WidgetsBinding.instance.addPostFrameCallback((_) =>
-    //     Provider.of<MyPro>(context, listen: false).;
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,120 +20,106 @@ class ProfileState extends State<Profile> {
       builder: (ctx, val, _) {
         return Scaffold(
           body: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.01, vertical: size.height * 0.02),
-              child: Column(children: [
-                SizedBox(
-                  width: size.width * 0.5,
-                  height: size.height * 0.3,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: SvgPicture.asset('assets/images/login.svg'),
-                  )
-                ),
-                SizedBox(height: size.height * 0.02),
-                Text("User Name", style: Theme.of(context).textTheme.headlineSmall),
+            child: Padding(
+              padding: EdgeInsets.all(size.height * 0.02),
+              child: Column(
+                children: [
+                  SizedBox(height: size.height * 0.04),
 
-                SizedBox(height: size.height * 0.02),
+                  SizedBox(
+                      width: size.height * 0.25,
+                      height: size.height * 0.25,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Hero(
+                            tag: val.user.userName,
+                            child: Image.asset('assets/images/old_avatar.jpg', fit: BoxFit.cover,)),
+                      )
+                  ),
 
-                ProfileMenuWidget(
-                  title: "Email",
-                  icon: Icons.mail,
-                  onPress: () {},
-                ),
-                ProfileMenuWidget(
-                  title: "Emergency Contact",
-                  icon: Icons.phone,
-                  onPress: () {},
-                ),
+                  SizedBox(height: size.height * 0.01),
+                  Text(val.user.userName, style: Theme.of(context).textTheme.titleLarge),
+                  SizedBox(height: size.height * 0.02),
 
-                ProfileMenuWidget(
-                  title: "Password",
-                  icon: Icons.lock_outline,
-                  onPress: () {},
-                ),
+                  ProfileMenuWidget(
+                    title: val.user.email,
+                    icon: Icons.mail,
+                    onPress: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => EditWidget(
+                            title: 'Email',
+                            type: 0,
+                            icon: const Icon(Icons.mail),
+                            textInputType: TextInputType.emailAddress,
+                      ));
+                    },
+                  ),
+                  ProfileMenuWidget(
+                    title: val.user.userPN,
+                    icon: Icons.phone,
+                    onPress: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => EditWidget(
+                            title: 'Emergency Contact',
+                            type: 1,
+                            icon: const Icon(Icons.phone),
+                            textInputType: TextInputType.phone,
+                      ));
+                    },
+                  ),
 
-                const Divider(),
-                SizedBox(height: size.height * 0.02),
+                  ProfileMenuWidget(
+                    title: "Password",
+                    icon: Icons.lock_outline,
+                    onPress: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => EditWidget(
+                          title: 'Password',
+                          type: 2,
+                          icon: const Icon(Icons.lock),
+                          textInputType: TextInputType.visiblePassword,
+                        )
+                      );
+                    },
+                  ),
 
-                ProfileMenuWidget(
-                  title: "Logout",
-                  icon: Icons.logout,
-                  endIcon: false,
-                  textColor: Colors.red,
-                  onPress: () {
-                    val.logout();
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => const LogScreen()));
-                  },
-                ),
+                  const Divider(thickness: 1),
 
-                const Divider(),
-                SizedBox(height: size.height * 0.02),
+                  ProfileMenuWidget(
+                    title: "Logout",
+                    icon: Icons.logout,
+                    endIcon: false,
+                    textColor: Colors.red,
+                    onPress: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => EditWidget(title: 'Logout', type: 3));
+                    },
+                  ),
 
-                ProfileMenuWidget(
-                  title: "Remove Account",
-                  icon: Icons.delete,
-                  endIcon: false,
-                  textColor: Colors.red,
-                  onPress: () {
-                    val.logout();
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => const LogScreen()));
-                  },
-                ),
-              ]),
+                  const Divider(thickness: 1,),
+
+                  ProfileMenuWidget(
+                    title: "Remove Account",
+                    icon: Icons.delete,
+                    endIcon: false,
+                    textColor: Colors.red,
+                    onPress: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => EditWidget(title: 'Remove Account', type: 4,
+                      ));
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );
       }
-    );
-  }
-}
-
-class ProfileMenuWidget extends StatelessWidget {
-  const ProfileMenuWidget({
-    Key? key,
-    required this.title,
-    required this.icon,
-    required this.onPress,
-    this.endIcon = true,
-    this.textColor,
-  }) : super(key: key);
-
-  final String title;
-  final IconData icon;
-  final VoidCallback onPress;
-  final bool endIcon;
-  final Color? textColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onPress,
-      leading: Container(
-        width: 48,
-        height: 0,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(100),
-          color: Colors.blue.withOpacity(0.1),
-        ),
-        child: Icon(icon, color: Colors.blueAccent),
-      ),
-      title: Text(title,
-          style:
-              Theme.of(context).textTheme.bodyLarge?.apply(color: textColor)),
-      trailing: endIcon
-          ? Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(300),
-                color: Colors.grey.withOpacity(0.1),
-              ),
-              child: const Icon(Icons.chevron_right,
-                  size: 18.0, color: Colors.grey))
-          : null,
     );
   }
 }
