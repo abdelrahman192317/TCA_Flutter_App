@@ -23,9 +23,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MyPro>(context, listen: false).getTheme();
       Provider.of<MyPro>(context, listen: false).getSavedSign();
-      Provider.of<MyPro>(context, listen: false).initializeNotifications();
-      });
+      Provider.of<MyPro>(context, listen: false).repeatNotifications();
+    });
     super.initState();
   }
 
@@ -44,6 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
               height: size.height * 0.5,
               fit: BoxFit.contain
           ),
+          backgroundColor: Theme.of(context).splashColor,
           nextScreen: val.isSign? const HomeScreen() : const LogScreen(),
           splashTransition: SplashTransition.fadeTransition,
         );

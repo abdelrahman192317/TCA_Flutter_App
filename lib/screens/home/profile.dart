@@ -1,14 +1,24 @@
-import 'package:app2m/widgets/dialog_edit_profile.dart';
+import 'package:app2m/screens/sign/log_screen.dart';
+import 'package:app2m/widgets/alert_confirm.dart';
+import 'package:app2m/widgets/dialog_edit_mail.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
 import '../../provider/my_provider.dart';
 
+import '../../widgets/dialog_edit_password.dart';
+import '../../widgets/dialog_edit_phone.dart';
 import '../../widgets/profile_card_widget.dart';
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
+
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
 
 
 
@@ -24,7 +34,22 @@ class Profile extends StatelessWidget {
               padding: EdgeInsets.all(size.height * 0.02),
               child: Column(
                 children: [
-                  SizedBox(height: size.height * 0.04),
+                  SizedBox(height: size.height * 0.03),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => val.toggleIsDark(),
+                        icon: Icon(val.isDark?
+                            Icons.light_mode :Icons.dark_mode,
+                          color: Theme.of(context).shadowColor,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: size.height * 0.02),
 
                   SizedBox(
                       width: size.height * 0.25,
@@ -41,77 +66,67 @@ class Profile extends StatelessWidget {
                   Text(val.user.userName, style: Theme.of(context).textTheme.titleLarge),
                   SizedBox(height: size.height * 0.02),
 
-                  ProfileMenuWidget(
+                  ProfileCardWidget(
                     title: val.user.email,
                     icon: Icons.mail,
                     onPress: () {
-                      showDialog(
-                          context: context,
-                          builder: (_) => EditWidget(
-                            title: 'Email',
-                            type: 0,
-                            icon: const Icon(Icons.mail),
-                            textInputType: TextInputType.emailAddress,
-                      ));
-                    },
-                  ),
-                  ProfileMenuWidget(
-                    title: val.user.userPN,
-                    icon: Icons.phone,
-                    onPress: () {
-                      showDialog(
-                          context: context,
-                          builder: (_) => EditWidget(
-                            title: 'Emergency Contact',
-                            type: 1,
-                            icon: const Icon(Icons.phone),
-                            textInputType: TextInputType.phone,
-                      ));
+                      showDialog(context: context, builder: (_) => EditMailWidget());
                     },
                   ),
 
-                  ProfileMenuWidget(
+                  ProfileCardWidget(
+                    title: val.user.userPN,
+                    icon: Icons.phone,
+                    endIcon: Icons.arrow_forward_ios,
+                    onPress: () {
+                      showDialog(context: context, builder: (_) => EditPhoneWidget());
+                    },
+                  ),
+
+                  ProfileCardWidget(
                     title: "Password",
                     icon: Icons.lock_outline,
                     onPress: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => EditWidget(
-                          title: 'Password',
-                          type: 2,
-                          icon: const Icon(Icons.lock),
-                          textInputType: TextInputType.visiblePassword,
-                        )
-                      );
+                      showDialog(context: context, builder: (_) => EditPasswordWidget());
                     },
                   ),
 
                   const Divider(thickness: 1),
 
-                  ProfileMenuWidget(
+                  ProfileCardWidget(
                     title: "Logout",
                     icon: Icons.logout,
-                    endIcon: false,
+                    isEndIcon: false,
                     textColor: Colors.red,
                     onPress: () {
-                      showDialog(
-                          context: context,
-                          builder: (_) => EditWidget(title: 'Logout', type: 3));
+                      showDialog(context: context, builder: (_) => AlertConfirmWidget(
+                          title: 'Logout', onPress: (){
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) => const LogScreen()));
+                        val.logout();
+                        val.toast(context, "You Have Logged Out", isRed: true);
+                        val.moveIndex(0);
+                      }));
                     },
                   ),
 
                   const Divider(thickness: 1,),
 
-                  ProfileMenuWidget(
+                  ProfileCardWidget(
                     title: "Remove Account",
                     icon: Icons.delete,
-                    endIcon: false,
+                    isEndIcon: false,
                     textColor: Colors.red,
                     onPress: () {
-                      showDialog(
-                          context: context,
-                          builder: (_) => EditWidget(title: 'Remove Account', type: 4,
-                      ));
+                      showDialog(context: context, builder: (_) => AlertConfirmWidget(title: 'Remove Account', onPress: (){
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) => const LogScreen()));
+                        val.deleteUser();
+                        val.toast(context, "Account Has Removed", isRed: true);
+                        val.moveIndex(0);
+                      }));
                     },
                   ),
                 ],

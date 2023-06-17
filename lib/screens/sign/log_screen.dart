@@ -10,50 +10,50 @@ class LogScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Stack(
-      children: [
-        Image.asset('assets/images/elderly2.jpg',
-          opacity: const AlwaysStoppedAnimation(0.6),
-          width: size.width,
-          height: size.height,
-          fit: BoxFit.fill,
-        ),
-        Positioned(
-          bottom: size.height * 0.05,
-          right: 10,
-          left: 10,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: size.width,
-                height: size.height * 0.08,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()));
-                  },
-                  child: const Text('LogIn'),
-                ),
-              ),
-              SizedBox(
-                height: size.height * 0.02,
-              ),
-              SizedBox(
-                width: size.width,
-                height: size.height * 0.08,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => const SignScreen()));
-                  },
-                  child: const Text('Create Account'),
-                ),
-              ),
-            ],
+    return Container(
+      width: size.width,
+      height: size.height,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/log.png'),
+          fit: BoxFit.cover,
+        )
+      ),
+      padding: EdgeInsets.all(size.height * 0.02),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          SizedBox(
+            width: size.width,
+            height: size.height * 0.08,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()));
+              },
+              child: const Text('LogIn'),
+            ),
           ),
-        ),
-      ],
+          SizedBox(
+            height: size.height * 0.02,
+          ),
+          SizedBox(
+            width: size.width,
+            height: size.height * 0.08,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const RegisterScreen()));
+              },
+              child: const Text('Create Account'),
+            ),
+          ),
+          SizedBox(
+            height: size.height * 0.02,
+          ),
+        ],
+      ),
     );
   }
 }

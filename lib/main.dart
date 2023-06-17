@@ -5,15 +5,14 @@ import 'package:provider/provider.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 import 'provider/my_provider.dart';
 import 'screens/splash/splash_screen.dart';
 
 
 
 void main() async {
+
+  //initialize firebase
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -35,13 +34,17 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => MyPro(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'ECS',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        home: const SplashScreen(),
+      child: Consumer<MyPro>(
+        builder: (ctx, val, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'TCA',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: val.isDark? ThemeMode.dark : ThemeMode.light,
+            home: const SplashScreen(),
+          );
+        }
       ),
     );
   }

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../notifications/all_notification_functions.dart';
+
 class MDate {
   DateTime dateTime;
   bool done;
@@ -17,10 +19,8 @@ class MDate {
     return MDate(
         dateTime: map['dateTime'] == null ?
         DateTime.now() : DateTime.parse(map['dateTime'] as String),
-        done: map['done']  == null ? false :
-        map['done'] == 'false' ? false : true,
-        archived: map['archived']  == null ? false :
-        map['archived'] == 'false' ? false : true,
+        done: map['done'] ?? false,
+        archived: map['archived'] ?? false,
     );
   }
 
@@ -69,22 +69,29 @@ class MedicationDates {
     this.daysNum = 0,
     this.done = 0,
     this.archived = 0,
-    this.datesList = const []
+    this.datesList = const [],
+    NotificationsHandler? notificationsHandler
   }){
     if(datesList!.isEmpty){
       medicineId = UniqueKey().toString();
+
       int i = daysNum * repeatInDay;
-      if(i != 0){
-        datesList = [];
-        for(int j = 0; j < i; j++) {
-          endDateTime = startDateTime;
-          datesList!.add(MDate(dateTime: endDateTime!.add(Duration(hours: (24~/repeatInDay) * j))));
-        }
+      datesList = [];
+      DateTime date = startDateTime;
+
+      for(int j = 0; j < i; j++) {
+        endDateTime = startDateTime;
+        date = endDateTime!.add(Duration(hours: (24~/repeatInDay) * j));
+        datesList!.add(MDate(dateTime: date));
+        notificationsHandler!.scheduleDatesNotification(
+          medicineId,
+          120 + date.day + date.hour + date.minute,
+          date, '$medicineName Time',
+          'This Is Reminder for Your Dose of $medicineName'
+        );
       }
-      else {
-        datesList = [MDate(dateTime: startDateTime)];
-      }
-      endDateTime = datesList![datesList!.length - 1].dateTime;
+
+      endDateTime = datesList!.last.dateTime;
     }
   }
 
@@ -101,8 +108,11 @@ class MedicationDates {
   }
 
   delete(DateTime date) {
-    if(datesList!.firstWhere((element) => element.dateTime == date).done)--done;
-    if(datesList!.firstWhere((element) => element.dateTime == date).archived)--archived;
+    if(datesList!.firstWhere((element) => element.dateTime == date).done) {
+      --done; --archived;
+    } else if(datesList!.firstWhere((element) => element.dateTime == date).archived) {
+      --archived;
+    }
     datesList!.removeWhere((element) => element.dateTime == date);
   }
 

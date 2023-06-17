@@ -1,93 +1,107 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
 
   static ThemeData lightTheme = ThemeData(
     //brightness: Brightness.light,
-    primaryColor: const Color(0xff19A7CE),
-    canvasColor: const Color(0xff146C94),
-    focusColor: const Color(0xff146C94),
-    dividerColor: const Color(0xff000000),
+    primaryColor: const Color(0xff22BB9C),
+    canvasColor: const Color(0xff22BB9C),
+    focusColor: const Color(0xff22BB9C).withOpacity(0.1),
+    dividerColor: const Color(0xffBBBBBB),
+    hintColor: Colors.white,
+    splashColor: Colors.white,
     colorScheme: const ColorScheme.light(
-      //brightness: Brightness.light,
-      background: Color(0xffF6F1F1),
-      primary: Color(0xff19A7CE),
-      secondary: Color(0xff146C94),
-      shadow: Color(0xff000000),
-      error: Colors.red
+      background: Colors.white,
+      primary: Color(0xff22BB9C),
+      secondary: Color(0xff22BB9C),
+      shadow: Colors.black,
+      error: Colors.red,
     ),
-    iconTheme: const IconThemeData(color: Color(0xff000000)),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(color: Colors.black),
-      displayMedium: TextStyle(color: Colors.black87),
-      displaySmall: TextStyle(color: Colors.black54),
+    textTheme: TextTheme(
+      displayLarge: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.black)),
+      displayMedium: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.black87)),
+      displaySmall: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.black54)),
     ),
-    appBarTheme: const AppBarTheme(
-      elevation: 0,
-      backgroundColor: Color(0xff19A7CE),
-      centerTitle: true,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 8,
+        shadowColor: const Color(0xff22BB9C),
+        backgroundColor: const Color(0xff22BB9C),
+        textStyle: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white)),
+      )
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 8
-    )),
     cardTheme: CardTheme(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 8,
-      color: const Color(0xff146C94),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 1,
+      shadowColor: Colors.black,
+      color: Colors.white,
     ),
-    expansionTileTheme: ExpansionTileThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      backgroundColor: const Color(0xff416d6d),
-      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    dialogTheme: const DialogTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+      ),
+      elevation: 10,
+      backgroundColor: Colors.white,
     ),
-    scaffoldBackgroundColor: const Color(0xffF6F1F1),
-    disabledColor: Colors.grey,
-    shadowColor: const Color(0xff000000),
+    scaffoldBackgroundColor: Colors.white,
+    disabledColor: const Color(0xff909090),
+    shadowColor: Colors.black54,
   );
 
   static ThemeData darkTheme = ThemeData(
-      brightness: Brightness.light,
-      primaryColor: const Color(0xff044A42),
-      canvasColor: const Color(0xff3a9188),
-      focusColor: const Color(0xff3A9188),
-      dividerColor: Colors.white,
-      colorScheme: const ColorScheme.dark(
-        brightness: Brightness.light,
-        background: Color(0xff062925),
-        primary: Color(0xff044a42),
-        secondary: Color(0xff3a9188),
-        shadow: Colors.white,
-        error: Colors.red
+    //brightness: Brightness.light,
+    primaryColor: const Color(0xff22BB9C),
+    canvasColor: const Color(0xff22BB9C),
+    focusColor: const Color(0xff22BB9C).withOpacity(0.1),
+    dividerColor: const Color(0xffBBBBBB),
+    hintColor: const Color(0xff35383F),
+    splashColor: const Color(0xff181A20),
+    colorScheme: const ColorScheme.light(
+      background: Color(0xff181A20),
+      primary: Color(0xff22BB9C),
+      secondary: Color(0xff22BB9C),
+      shadow: Colors.white60,
+      error: Colors.red,
+    ),
+    textTheme: TextTheme(
+      displayLarge: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white)),
+      displayMedium: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white70)),
+      displaySmall: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white60)),
+      titleLarge: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white)),
+      titleMedium: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white70)),
+      titleSmall: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white60)),
+      bodyLarge: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white)),
+      bodyMedium: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white70)),
+      bodySmall: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white60)),
+      labelLarge: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white)),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 8,
+          shadowColor: const Color(0xff22BB9C),
+          backgroundColor: const Color(0xff22BB9C),
+          textStyle: GoogleFonts.roboto(textStyle: const TextStyle(color: Colors.white)),
+        )
+    ),
+    cardTheme: CardTheme(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 1,
+      shadowColor: Colors.white60,
+      color: const Color(0xff35383F),
+    ),
+    dialogTheme: const DialogTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
       ),
-      iconTheme: const IconThemeData(color: Colors.white),
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(color: Colors.white),
-        displayMedium: TextStyle(color: Colors.white70),
-        displaySmall: TextStyle(color: Colors.white60),
-      ),
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        backgroundColor: Color(0xff3a9188),
-        centerTitle: true,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          elevation: 8
-      )),
-      cardTheme: CardTheme(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        elevation: 8,
-        color: const Color(0xff044a42),
-      ),
-      expansionTileTheme: ExpansionTileThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        backgroundColor: const Color(0xff3a9188),
-        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      ),
-      scaffoldBackgroundColor: const Color(0xff062925),
-      disabledColor: Colors.grey,
-      shadowColor: Colors.white
+      elevation: 10,
+      backgroundColor: Color(0xff35383F),
+    ),
+    scaffoldBackgroundColor: const Color(0xff181A20),
+    disabledColor: const Color(0xff828282),
+    shadowColor: Colors.white70,
   );
 
 }

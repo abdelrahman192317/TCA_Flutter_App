@@ -26,28 +26,53 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
     return Consumer<MyPro>(
-        builder: (ctx, val, _) => Scaffold(
+      builder: (ctx, val, _) {
+        if(val.newMessage != ''){
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            val.myShowDialog(context);
+          });
+        }
+        return Scaffold(
           body: val.index == 2
               ? const Profile()
               : const DatesListScreen(),
           bottomNavigationBar: BottomNavyBar(
+            containerHeight: size.height * 0.08,
+            backgroundColor: Theme
+                .of(context)
+                .colorScheme
+                .background,
             selectedIndex: val.index,
             onItemSelected: (index) => val.moveIndex(index),
             items: [
               BottomNavyBarItem(
+                  activeColor: Theme
+                      .of(context)
+                      .primaryColor,
                   icon: const Icon(Icons.home),
                   title: const Text('Home')),
               BottomNavyBarItem(
+                  activeColor: Theme
+                      .of(context)
+                      .primaryColor,
                   icon: const Icon(Icons.archive_outlined),
                   title: const Text('Archive')),
               BottomNavyBarItem(
+                  activeColor: Theme
+                      .of(context)
+                      .primaryColor,
                   icon: const Icon(Icons.person_outline),
                   title: const Text('Profile')),
             ],
           ),
-        ));
+        );
+      }
+    );
   }
 }

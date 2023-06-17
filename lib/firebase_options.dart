@@ -50,20 +50,22 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA_jDTbUMIeYqNcwIHvliWPCNFbPlgthzU',
-    appId: '1:327859700693:android:31e9a8bc66c3b9cf21b35c',
-    messagingSenderId: '327859700693',
-    projectId: 'm-app-7d199',
-    storageBucket: 'm-app-7d199.appspot.com',
+    apiKey: 'AIzaSyDFL-y0W4NvhMUFEhHWysPwTkXDaK0NGHI',
+    appId: '1:983528180060:android:2dbb0e9b71e1a123325999',
+    messagingSenderId: '983528180060',
+    projectId: 'fall-detection-d11e6',
+    databaseURL: 'https://fall-detection-d11e6-default-rtdb.firebaseio.com',
+    storageBucket: 'fall-detection-d11e6.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA8L_Iio5czAl9s-RDeZPkNpRzXPYXMXZ8',
-    appId: '1:327859700693:ios:399885215bc2e0dd21b35c',
-    messagingSenderId: '327859700693',
-    projectId: 'm-app-7d199',
-    storageBucket: 'm-app-7d199.appspot.com',
-    iosClientId: '327859700693-32fe1drrrujofql8o3ebehad4m911520.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCzRwIYqr8wSc27caeKqqRjiAC7UxHmPEs',
+    appId: '1:983528180060:ios:f1b0e75a6ba6ff08325999',
+    messagingSenderId: '983528180060',
+    projectId: 'fall-detection-d11e6',
+    databaseURL: 'https://fall-detection-d11e6-default-rtdb.firebaseio.com',
+    storageBucket: 'fall-detection-d11e6.appspot.com',
+    iosClientId: '983528180060-an60pf5rhre8dmdso18ikgfmjv88ljr8.apps.googleusercontent.com',
     iosBundleId: 'com.example.app2m',
   );
 }

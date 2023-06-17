@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.app2m">
     <application
-        android:label="ECS"
+        android:label="TCA"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,13 +30,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
         <!-- <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR KEY HERE"/> -->
-        <service
-            android:name="com.example.flutterLocalNotification.ForegroundService"
-            android:exported="false"
-            android:stopWithTask="false"/>
     </application>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>

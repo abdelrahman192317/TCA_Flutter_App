@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 
-class ProfileMenuWidget extends StatelessWidget {
-  const ProfileMenuWidget({
+class ProfileCardWidget extends StatelessWidget {
+  const ProfileCardWidget({
     Key? key,
     required this.title,
     required this.icon,
+    this.endIcon = Icons.edit,
     required this.onPress,
-    this.endIcon = true,
+    this.isEndIcon = true,
     this.textColor,
   }) : super(key: key);
 
   final String title;
   final IconData icon;
+  final IconData endIcon;
   final VoidCallback onPress;
-  final bool endIcon;
+  final bool isEndIcon;
   final Color? textColor;
 
   @override
@@ -22,17 +24,16 @@ class ProfileMenuWidget extends StatelessWidget {
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.blue.withOpacity(0.1),
+        color: Theme.of(context).focusColor,
       ),
       child: ListTile(
         onTap: onPress,
-        leading: Icon(icon, color: Colors.blueAccent),
-        title: Text(title,
-            style:
-            Theme.of(context).textTheme.bodyLarge?.apply(color: textColor)),
-        trailing: endIcon
-            ? const Icon(Icons.edit)
-            : null,
+        leading: Icon(icon, color: isEndIcon? Theme.of(context).primaryColor : Colors.red),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.apply(color: textColor)
+        ),
+        trailing: isEndIcon ? Icon(endIcon) : null,
       ),
     );
   }

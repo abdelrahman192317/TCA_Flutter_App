@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../notifications/all_notification_functions.dart';
+
 class DDate {
   DateTime dateTime;
   bool done;
@@ -17,10 +19,8 @@ class DDate {
     return DDate(
       dateTime: map['dateTime'] == null ?
       DateTime.now() : DateTime.parse(map['dateTime'] as String),
-      done: map['done']  == null ? false :
-      map['done'] == 'false' ? false : true,
-      archived: map['archived']  == null ? false :
-      map['archived'] == 'false' ? false : true,
+      done: map['done'] ?? false,
+      archived: map['archived'] ?? false,
     );
   }
 
@@ -58,11 +58,18 @@ class DoctorDates {
     required this.dateTime,
     this.done = 0,
     this.archived = 0,
-    this.datesList
+    this.datesList,
+    NotificationsHandler? notificationsHandler
   }){
     if(datesList == null){
       doctorId = UniqueKey().toString();
       datesList = [DDate(dateTime: dateTime!)];
+      notificationsHandler!.scheduleDatesNotification(
+        doctorId,
+        dateTime!.day + dateTime!.hour + dateTime!.minute,
+        dateTime!, 'Doctor $doctorName Date',
+        'This Is Reminder for Your Date With Doctor $doctorName'
+      );
     }
   }
 
@@ -79,14 +86,23 @@ class DoctorDates {
   }
 
   delete(DateTime date) {
-    if(datesList!.firstWhere((element) => element.dateTime == date).done)--done;
-    if(datesList!.firstWhere((element) => element.dateTime == date).archived)--archived;
+    if(datesList!.firstWhere((element) => element.dateTime == date).done) {
+      --done; --archived;
+    } else if(datesList!.firstWhere((element) => element.dateTime == date).archived) {
+      --archived;
+    }
     datesList!.removeWhere((element) => element.dateTime == date);
   }
 
-  addDate(DateTime date) {
+  addDate({required DateTime date, required NotificationsHandler notificationsHandler}) {
     datesList!.add(DDate(dateTime: date));
     datesList!.sort((a,b) => a.dateTime.compareTo(b.dateTime));
+
+    notificationsHandler.scheduleDatesNotification(
+      doctorId, (date.day + date.hour + date.minute),
+      date, 'Doctor $doctorName Date',
+      'This Is Reminder for Your Date With Doctor $doctorName'
+    );
   }
 
 
